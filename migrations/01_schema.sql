@@ -48,8 +48,3 @@ CREATE TABLE property_reviews (
   rating SMALLINT NOT NULL DEFAULT 0,
   message TEXT
 );
-© 2021 GitHub, Inc.
-Terms
-Privacy
-Security
-Status

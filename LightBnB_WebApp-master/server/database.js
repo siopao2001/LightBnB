@@ -146,7 +146,7 @@ const getAllProperties = function (options, limit = 10) {
   // 3
   if (options.city) {
     queryParams.push(`%${options.city}%`);
-    (queryParams.length > 1) ? queryString += `AND city LIKE $${queryParams.length} ` : queryString += `WHERE city LIKE $${queryParams.length} `;
+    (queryParams.length > 1) ? queryString += `AND city ILIKE $${queryParams.length} ` : queryString += `WHERE city ILIKE $${queryParams.length} `;
     //queryString += `WHERE city = $${queryParams.length} `;
   };
 
@@ -170,20 +170,33 @@ if (options.maximum_price_per_night) {
     //queryString += `WHERE owner_id = $${queryParams.length} `;
   };
 
-if (options.minimum_rating) {
-    let ratingVal = parseInt(options.minimum_rating)
-    queryParams.push(ratingVal);
-    (queryParams.length > 1) ? queryString += `AND property_reviews.rating >= $${queryParams.length} ` : queryString += `WHERE property_reviews.rating >= $${queryParams.length} `;
-    //queryString += `WHERE owner_id = $${queryParams.length} `;
-  }
+// if (options.minimum_rating) {
+//     let ratingVal = parseInt(options.minimum_rating)
+//     queryParams.push(ratingVal);
+//     (queryParams.length > 1) ? queryString += `AND property_reviews.rating >= $${queryParams.length} ` : queryString += `WHERE property_reviews.rating >= $${queryParams.length} `;
+//     //queryString += `WHERE owner_id = $${queryParams.length} `;
+//   }
 
   // 4
+  // queryParams.push(limit);
+  // queryString += `
+  // GROUP BY properties.id
+  // ORDER BY cost_per_night
+  // LIMIT $${queryParams.length};
+  // `;
+
+queryString += `GROUP BY properties.id`;
+
+ if (options.minimum_rating) {
+    let ratingVal = parseInt(options.minimum_rating)
+    queryParams.push(ratingVal);
+    //(queryParams.length > 1) ? queryString += `HAVING  >= $${queryParams.length} ` : queryString += `WHERE property_reviews.rating >= $${queryParams.length} `;
+    queryString += ` HAVING avg(property_reviews.rating) >= $${queryParams.length} `;
+  }
+
   queryParams.push(limit);
-  queryString += `
-  GROUP BY properties.id
-  ORDER BY cost_per_night
-  LIMIT $${queryParams.length};
-  `;
+  queryString += ` ORDER BY cost_per_night
+  LIMIT $${queryParams.length};`;
 
   // 5
   console.log(queryString, queryParams);
